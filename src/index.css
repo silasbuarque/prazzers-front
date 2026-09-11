@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cormorant Garamond", serif;
+  --font-sans: "Jost", system-ui, sans-serif;
+
+  --color-ink: #0b0b0d;
+  --color-surface: #19191d;
+  --color-surface-2: #201f24;
+  --color-line: rgba(244, 240, 236, 0.1);
+  --color-line-strong: rgba(244, 240, 236, 0.22);
+  --color-cream: #f4f0ec;
+  --color-red: #c1121f;
+  --color-red-deep: #7a0c16;
+  --color-red-wine: #a30f1c;
+  --color-gold: #c9a96e;
+}
+
+::selection {
+  background: rgba(193, 18, 31, 0.45);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 300;
+}
+
+a {
+  color: var(--color-gold);
+  text-decoration: none;
+}
+a:hover {
+  color: #e0c894;
+}
+
+::placeholder {
+  color: rgba(244, 240, 236, 0.35);
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-cream);
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-ink) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
