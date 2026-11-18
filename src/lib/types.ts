@@ -13,7 +13,12 @@ export interface Profile {
   photoCount: number
 }
 
+// Mirrors com.prazzers.auth.dto.response.UserResponse.
 export interface AuthUser {
+  id: string
   name: string
   email: string
+  age: number
+  nationality: string | null
+  region: string | null
 }

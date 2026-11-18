@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Placeholder } from '../components/Placeholder'
 import { Button } from '../components/ui/Button'
 import { CheckField, TextField } from '../components/ui/Field'
+import { ApiError } from '../lib/api'
 import { useAuth } from '../lib/auth'
 
 export function Login() {
@@ -11,10 +12,22 @@ export function Login() {
   const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [keepSignedIn, setKeepSignedIn] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await login(email, password)
+    setError(null)
+    setSubmitting(true)
+    try {
+      await login(email, password, keepSignedIn)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Não foi possível entrar. Tente novamente.')
+      return
+    } finally {
+      setSubmitting(false)
+    }
     const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/vitrine'
     navigate(from, { replace: true })
   }
@@ -61,13 +74,20 @@ export function Login() {
               required
             />
             <div className="flex flex-wrap items-center justify-between gap-4 text-[13px]">
-              <CheckField>Manter conectado</CheckField>
+              <CheckField checked={keepSignedIn} onChange={(e) => setKeepSignedIn(e.target.checked)}>
+                Manter conectado
+              </CheckField>
               <Link to="#" className="text-cream/55 hover:text-gold">
                 Esqueci a senha
               </Link>
             </div>
-            <Button type="submit" variant="primary" className="w-full">
-              Entrar
+            {error && (
+              <p role="alert" className="text-[13px] text-red">
+                {error}
+              </p>
+            )}
+            <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+              {submitting ? 'Entrando…' : 'Entrar'}
             </Button>
           </div>
 

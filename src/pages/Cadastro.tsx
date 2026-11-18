@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Placeholder } from '../components/Placeholder'
 import { Button } from '../components/ui/Button'
 import { CheckField, TextField } from '../components/ui/Field'
+import { ApiError } from '../lib/api'
 import { useAuth } from '../lib/auth'
 
 export function Cadastro() {
@@ -17,6 +18,9 @@ export function Cadastro() {
     password: '',
   })
   const [accepted, setAccepted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [submitting, setSubmitting] = useState(false)
 
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }))
@@ -25,7 +29,22 @@ export function Cadastro() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!accepted) return
-    await register(form, form.password)
+    setError(null)
+    setFieldErrors({})
+    setSubmitting(true)
+    try {
+      await register(form, form.password)
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message)
+        setFieldErrors(err.fieldErrors)
+      } else {
+        setError('Não foi possível concluir o cadastro. Tente novamente.')
+      }
+      return
+    } finally {
+      setSubmitting(false)
+    }
     navigate('/meu-perfil')
   }
 
@@ -108,8 +127,20 @@ export function Cadastro() {
             <CheckField checked={accepted} onChange={(e) => setAccepted(e.target.checked)} required>
               Declaro ter 18 anos ou mais e aceito os termos de uso e a política de privacidade.
             </CheckField>
-            <Button type="submit" variant="primary" className="w-full" disabled={!accepted}>
-              Criar conta
+            {error && (
+              <div role="alert" className="text-[13px] text-red">
+                <p>{error}</p>
+                {Object.values(fieldErrors).length > 0 && (
+                  <ul className="mt-1 list-disc pl-5">
+                    {Object.entries(fieldErrors).map(([field, msg]) => (
+                      <li key={field}>{msg}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            <Button type="submit" variant="primary" className="w-full" disabled={!accepted || submitting}>
+              {submitting ? 'Criando conta…' : 'Criar conta'}
             </Button>
           </div>
 

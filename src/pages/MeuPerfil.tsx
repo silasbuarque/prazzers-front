@@ -5,10 +5,12 @@ import { Placeholder } from '../components/Placeholder'
 import { Button } from '../components/ui/Button'
 import { Pill } from '../components/ui/Pill'
 import { SelectField, TextAreaField, TextField } from '../components/ui/Field'
+import { useAuth } from '../lib/auth'
 import { LANGUAGES, PROFILES } from '../lib/mockData'
 
 const seed = PROFILES[0]
 const GALLERY_SLOTS = Array.from({ length: 5 }, (_, i) => i + 2)
+const NATIONALITIES = ['Brasileira', 'Portuguesa', 'Argentina', 'Italiana', 'Colombiana', 'Espanhola', 'Francesa']
 
 interface Toggle {
   key: string
@@ -18,11 +20,14 @@ interface Toggle {
 }
 
 export function MeuPerfil() {
-  const [name, setName] = useState(seed.name)
-  const [age, setAge] = useState(String(seed.age))
-  const [nationality, setNationality] = useState(seed.nationality)
+  // Name/age/nationality/region come from the auth-service; the rest is still mock data.
+  const { user } = useAuth()
+  const [name, setName] = useState(user?.name ?? seed.name)
+  const [age, setAge] = useState(String(user?.age ?? seed.age))
+  const [nationality, setNationality] = useState(user?.nationality ?? seed.nationality)
   const [city, setCity] = useState(seed.city)
-  const [region, setRegion] = useState(seed.region)
+  const [region, setRegion] = useState(user?.region ?? seed.region)
+  const nationalities = NATIONALITIES.includes(nationality) ? NATIONALITIES : [nationality, ...NATIONALITIES]
   const [about, setAbout] = useState(seed.about)
   const [languages, setLanguages] = useState<string[]>(seed.languages)
   const [toggles, setToggles] = useState<Toggle[]>([
@@ -112,11 +117,9 @@ export function MeuPerfil() {
                   value={nationality}
                   onChange={(e) => setNationality(e.target.value)}
                 >
-                  {['Brasileira', 'Portuguesa', 'Argentina', 'Italiana', 'Colombiana', 'Espanhola', 'Francesa'].map(
-                    (n) => (
-                      <option key={n}>{n}</option>
-                    ),
-                  )}
+                  {nationalities.map((n) => (
+                    <option key={n}>{n}</option>
+                  ))}
                 </SelectField>
               </div>
 
